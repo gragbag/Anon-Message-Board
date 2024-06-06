@@ -36,12 +36,8 @@ module.exports = function (app) {
   app.route('/api/threads/:board')
     .get(async (req, res) => {
       const board = req.params.board;
-      const thread_id = req.query.thread_id;
 
-      let threads;
-
-      if (!thread_id) {
-        threads = await Thread.find({board: board}, {__v: 0, reported: 0, delete_password: 0, board: 0})
+      const threads = await Thread.find({board: board}, {__v: 0, reported: 0, delete_password: 0, board: 0})
           .populate({
             path: 'replies',
             select: '-__v -reported -delete_password -thread',
@@ -49,16 +45,6 @@ module.exports = function (app) {
           })
           .sort({bumped_on: -1})
           .limit(10);
-      } else if (ObjectId.isValid(thread_id)){
-        threads = await Thread.findOne({board: board, _id: thread_id}, {__v: 0, reported: 0, board: 0, delete_password: 0})
-          .populate({
-            path: 'replies',
-            select: '-__v -reported -delete_password -thread',
-            options: { sort: {created_on: -1}}
-          })
-      } else {
-        return res.status(400).send({error: 'invalid thread_id'});
-      }
 
       return res.status(200).send(threads);
       
@@ -119,6 +105,23 @@ module.exports = function (app) {
     });
     
   app.route('/api/replies/:board')
+    .get(async (req, res) => {
+      const board = req.params.board;
+      const thread_id = req.query.thread_id;
+
+      if (ObjectId.isValid(thread_id)){
+        const thread = await Thread.findOne({board: board, _id: thread_id}, {__v: 0, reported: 0, board: 0, delete_password: 0})
+          .populate({
+            path: 'replies',
+            select: '-__v -reported -delete_password -thread',
+            options: { sort: {created_on: -1}}
+          })
+        
+          return res.status(200).send(thread);
+      } else {
+        return res.status(400).send({error: 'invalid thread_id'});
+      }
+    })
     .post(async (req, res) => {
       const board = req.body.board;
       const thread_id = req.body.thread_id;
@@ -179,7 +182,7 @@ module.exports = function (app) {
         if (success) {
           reply.text = '[deleted]'
           await reply.save();
-          return res.status(200).send('sucess');
+          return res.status(200).send('success');
         } else {
           return res.send('incorrect password');
         }
