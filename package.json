@@ -4,9 +4,10 @@
 	"description": "InfoSec project for freeCodeCamp",
 	"main": "server.js",
 	"scripts": {
-		"start": "node server.js"
+		"start": "node --watch server.js"
 	},
 	"dependencies": {
+		"bcrypt": "^5.1.1",
 		"body-parser": "^1.15.2",
 		"chai": "^4.2.0",
 		"chai-http": "^3.0.0",
@@ -14,7 +15,9 @@
 		"dotenv": "^8.2.0",
 		"express": "^4.14.0",
 		"helmet": "^3.1.0",
-		"mocha": "^3.2.0"
+		"mocha": "^3.2.0",
+		"mongodb": "^6.7.0",
+		"mongoose": "^8.4.1"
 	},
 	"repository": {
 		"type": "git",
